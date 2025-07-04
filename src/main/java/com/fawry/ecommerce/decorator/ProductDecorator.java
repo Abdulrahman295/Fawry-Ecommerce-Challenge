@@ -1,7 +1,7 @@
 package main.java.com.fawry.ecommerce.decorator;
 
 import main.java.com.fawry.ecommerce.enums.ProductType;
-import main.java.com.fawry.ecommerce.model.IProduct;
+import main.java.com.fawry.ecommerce.model.product.IProduct;
 
 public abstract class ProductDecorator implements IProduct {
     protected IProduct product;
@@ -26,12 +26,22 @@ public abstract class ProductDecorator implements IProduct {
     }
 
     @Override
-    public void setQuantity(int newQuantity) {
-        product.setQuantity(newQuantity);
+    public ProductType getType() {
+        return product.getType();
     }
 
     @Override
-    public ProductType getType() {
-        return product.getType();
+    public boolean isStockAvailable(int requestedQuantity) {
+        return product.isStockAvailable(requestedQuantity);
+    }
+
+    @Override
+    public void increaseStock(int amount) {
+        product.increaseStock(amount);
+    }
+
+    @Override
+    public void decreaseStock(int amount) {
+        product.decreaseStock(amount);
     }
 }

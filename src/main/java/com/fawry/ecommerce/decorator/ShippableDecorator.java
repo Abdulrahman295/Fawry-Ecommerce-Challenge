@@ -1,7 +1,7 @@
 package main.java.com.fawry.ecommerce.decorator;
 
-import main.java.com.fawry.ecommerce.model.IProduct;
-import main.java.com.fawry.ecommerce.model.Shippable;
+import main.java.com.fawry.ecommerce.model.product.IProduct;
+import main.java.com.fawry.ecommerce.model.product.Shippable;
 
 public class ShippableDecorator extends ProductDecorator implements Shippable {
     private final double weight;

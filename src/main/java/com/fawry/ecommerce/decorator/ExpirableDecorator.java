@@ -1,7 +1,7 @@
 package main.java.com.fawry.ecommerce.decorator;
 
-import main.java.com.fawry.ecommerce.model.Expirable;
-import main.java.com.fawry.ecommerce.model.IProduct;
+import main.java.com.fawry.ecommerce.model.product.Expirable;
+import main.java.com.fawry.ecommerce.model.product.IProduct;
 
 import java.time.LocalDate;
 
