@@ -72,17 +72,13 @@ classDiagram
         -String name
         -double balance
         -ShoppingCart shoppingCart
-        +addToCart(Product, int)
-        +removeFromCart(Product)
-        +hasSufficientBalance(double)
         +deductBalance(double)
-        +addBalance(double)
+        +hasSufficientBalance(double)
     }
 
     class ShoppingCart {
         -List<CartItem> items
         +addItem(Product, int)
-        +removeItem(Product)
         +getTotalPrice()
         +isEmpty()
     }
@@ -91,21 +87,16 @@ classDiagram
         -Product product
         -int quantity
         +getTotalPrice()
-        +increaseQuantity(int)
-        +decreaseQuantity(int)
     }
 
     class Product {
         -String name
         -double price
         -int quantity
-        -ProductType type
         -Map<Class, Component> components
         +isStockAvailable(int)
-        +increaseStock(int)
         +decreaseStock(int)
         +addComponent(Component)
-        +removeComponent(Class)
         +getComponent(Class)
     }
 
@@ -114,18 +105,16 @@ classDiagram
     }
 
     class ExpirationComponent {
-        -LocalDate expirationDate
         +isExpired()
     }
 
     class ShippingComponent {
-        -String name
-        -double weight
+        +getName()
+        +getWeight()
     }
 
     class Expirable {
         <<interface>>
-        +getExpirationDate()
         +isExpired()
     }
 
@@ -137,18 +126,23 @@ classDiagram
 
     class CheckoutService {
         -ShippingService shippingService
+        -CheckoutValidator validator
         +processCheckout(Customer)
+    }
+
+    class CheckoutValidator {
+        +validate(Customer, double totalCost)
     }
 
     class ShippingService {
         <<interface>>
         +calculateFees(List<Shippable>)
-        +processShipping(List<Shippable>)
+        +commitShipping(List<Shippable>)
     }
 
     class StandardShippingService {
         +calculateFees(List<Shippable>)
-        +processShipping(List<Shippable>)
+        +commitShipping(List<Shippable>)
     }
 
     Customer "1" *-- "1" ShoppingCart
@@ -159,7 +153,8 @@ classDiagram
     ExpirationComponent ..|> Expirable
     ShippingComponent ..|> Component
     ShippingComponent ..|> Shippable
-    CheckoutService "1" --> "1" ShippingService
+    CheckoutService --> ShippingService
+    CheckoutService --> CheckoutValidator
     StandardShippingService ..|> ShippingService
 ```
 
@@ -168,7 +163,8 @@ classDiagram
 **Code**
 ```java
 ShippingService shippingService = new StandardShippingService();
-CheckoutService checkoutService = new CheckoutService(shippingService);
+CheckoutValidator checkoutValidator = new CheckoutValidator();
+CheckoutService checkoutService = new CheckoutService(shippingService, checkoutValidator);
 
 Customer customer = new Customer("Jane Doe", 500.0);
 
@@ -207,7 +203,8 @@ New Customer Balance:  $115.30
 **Code**
 ```java
 ShippingService shippingService = new StandardShippingService();
-CheckoutService checkoutService = new CheckoutService(shippingService);
+CheckoutValidator checkoutValidator = new CheckoutValidator();
+CheckoutService checkoutService = new CheckoutService(shippingService, checkoutValidator);
 
 Customer customer = new Customer("John Smith", 100.0);
 Product scratchCard = new Product("Scratch Card", 50, 5, ProductType.SCRATCH_CARD);
@@ -232,7 +229,8 @@ New Customer Balance:  $ 50.00
 **Code**
 ```java
 ShippingService shippingService = new StandardShippingService();
-CheckoutService checkoutService = new CheckoutService(shippingService);
+CheckoutValidator checkoutValidator = new CheckoutValidator();
+CheckoutService checkoutService = new CheckoutService(shippingService, checkoutValidator);
 
 Customer customer = new Customer("Jane Doe", 500.0);
 // No items are added to the cart
@@ -247,7 +245,8 @@ Checkout failed: Shopping cart is empty. Please add items to your cart before ch
 **Code**
 ```java
 ShippingService shippingService = new StandardShippingService();
-CheckoutService checkoutService = new CheckoutService(shippingService);
+CheckoutValidator checkoutValidator = new CheckoutValidator();
+CheckoutService checkoutService = new CheckoutService(shippingService, checkoutValidator);
 
 // Customer only has $50
 Customer customer = new Customer("Jane Doe", 50.0);
@@ -282,15 +281,16 @@ Checkout failed: Insufficient stock for product: Biscuits
 **Code**
 ```java
 ShippingService shippingService = new StandardShippingService();
-CheckoutService checkoutService = new CheckoutService(shippingService);
+CheckoutValidator checkoutValidator = new CheckoutValidator();
+CheckoutService checkoutService = new CheckoutService(shippingService, checkoutValidator);
 
 Customer customer = new Customer("Jane Doe", 500.0);
-Product milk = new Product("Cheese", 20, 10, ProductType.CHEESE);
+Product cheese = new Product("Cheese", 20, 10, ProductType.CHEESE);
 
 // Expiration date is set to yesterday
-milk.addComponent(new ExpirationComponent(LocalDate.now().minusDays(1)));
+cheese.addComponent(new ExpirationComponent(LocalDate.now().minusDays(1)));
 
-customer.addToCart(milk, 1);
+customer.addToCart(cheese, 1);
 checkoutService.processCheckout(customer);
 ```
 **Output**
