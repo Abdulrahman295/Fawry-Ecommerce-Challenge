@@ -4,21 +4,20 @@ import main.java.com.fawry.ecommerce.component.ShippingComponent;
 import main.java.com.fawry.ecommerce.model.Customer;
 import main.java.com.fawry.ecommerce.model.cart.CartItem;
 import main.java.com.fawry.ecommerce.model.cart.ShoppingCart;
-import main.java.com.fawry.ecommerce.model.product.Expirable;
 import main.java.com.fawry.ecommerce.model.product.Product;
 import main.java.com.fawry.ecommerce.model.product.Shippable;
-import main.java.com.fawry.ecommerce.component.ExpirationComponent;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class CheckoutService {
     private final ShippingService shippingService;
+    private final CheckoutValidator checkoutValidator;
 
-    public CheckoutService(ShippingService shippingService) {
+    public CheckoutService(ShippingService shippingService, CheckoutValidator checkoutValidator) {
         this.shippingService = shippingService;
+        this.checkoutValidator = checkoutValidator;
     }
 
     public void processCheckout(Customer customer) {
@@ -27,58 +26,18 @@ public class CheckoutService {
         }
 
         List<Shippable> shippableItems = getShippableItems(customer.getShoppingCart());
-
         double shippingCost = shippingService.calculateFees(shippableItems);
-
-        validateCheckout(customer, shippingCost);
-        commitCheckout(customer, shippableItems, shippingCost);
-    }
-
-    private void validateCheckout(Customer customer, double shippingCost) {
-        validateCartIsNotEmpty(customer.getShoppingCart());
-        validateProductAvailability(customer.getShoppingCart());
-        validateCustomerBalance(customer, shippingCost);
-    }
-
-    private void validateCartIsNotEmpty(ShoppingCart shoppingCart) {
-        if (shoppingCart.isEmpty()) {
-            throw new IllegalArgumentException("Shopping cart is empty. Please add items to your cart before checking out.");
-        }
-    }
-
-    private void validateProductAvailability(ShoppingCart shoppingCart) {
-        shoppingCart.getItems().forEach(item -> {
-            Product product = item.getProduct();
-            int quantity = item.getQuantity();
-
-            // Check stock availability
-            if (!product.isStockAvailable(quantity)) {
-                throw new IllegalArgumentException("Insufficient stock for product: " + item.getProduct().getName());
-            }
-
-            // Check expiration
-            Optional<ExpirationComponent> expirationOptional = product.getComponent(ExpirationComponent.class);
-            if (expirationOptional.isPresent() && expirationOptional.get().isExpired()) {
-                throw new IllegalArgumentException("Product is expired: " + product.getName());
-            }
-        });
-    }
-
-    private void validateCustomerBalance(Customer customer, double shippingCost) {
         double totalCost = customer.getShoppingCart().getTotalPrice() + shippingCost;
 
-        if (!customer.hasSufficientBalance(totalCost)) {
-            throw new IllegalArgumentException("Insufficient balance. Required: " + totalCost + ", Available: " + customer.getBalance());
-        }
+        checkoutValidator.validate(customer, totalCost);
+        commitCheckout(customer, shippableItems, totalCost);
+        printCheckoutReceipt(customer, shippingCost, totalCost);
     }
 
-    private void commitCheckout(Customer customer, List<Shippable> shippableItems, double shippingCost) {
-        double totalCost = customer.getShoppingCart().getTotalPrice() + shippingCost;
-
+    private void commitCheckout(Customer customer, List<Shippable> shippableItems, double totalCost) {
         updateCustomerBalance(customer, totalCost);
         updateProductStock(customer.getShoppingCart());
-        shippingService.processShipping(shippableItems);
-        printCheckoutReceipt(customer, shippingCost);
+        shippingService.commitShipping(shippableItems);
     }
 
     private List<Shippable> getShippableItems(ShoppingCart shoppingCart) {
@@ -104,7 +63,7 @@ public class CheckoutService {
         });
     }
 
-    private void printCheckoutReceipt(Customer customer, double shippingCost) {
+    private void printCheckoutReceipt(Customer customer, double shippingCost, double totalCost) {
         System.out.println("\n** Checkout Receipt **");
         for (CartItem item : customer.getShoppingCart().getItems()) {
             System.out.printf("%d x %-20s $%6.2f\n", item.getQuantity(), item.getProduct().getName(), item.getTotalPrice());
@@ -116,7 +75,7 @@ public class CheckoutService {
         } else {
             System.out.println("No shipping fees applied.");
         }
-        System.out.printf("%-22s $%6.2f\n", "Paid Amount:", customer.getShoppingCart().getTotalPrice() + shippingCost);
+        System.out.printf("%-22s $%6.2f\n", "Paid Amount:", totalCost);
         System.out.printf("%-22s $%6.2f\n", "New Customer Balance:", customer.getBalance());
     }
 }

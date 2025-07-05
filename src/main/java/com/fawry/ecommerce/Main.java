@@ -6,6 +6,7 @@ import main.java.com.fawry.ecommerce.enums.ProductType;
 import main.java.com.fawry.ecommerce.model.Customer;
 import main.java.com.fawry.ecommerce.model.product.Product;
 import main.java.com.fawry.ecommerce.service.CheckoutService;
+import main.java.com.fawry.ecommerce.service.CheckoutValidator;
 import main.java.com.fawry.ecommerce.service.ShippingService;
 import main.java.com.fawry.ecommerce.service.StandardShippingService;
 
@@ -15,7 +16,8 @@ public class Main {
     public static void main(String[] args) {
        try {
               ShippingService shippingService = new StandardShippingService();
-              CheckoutService checkoutService = new CheckoutService(shippingService);
+              CheckoutValidator checkoutValidator = new CheckoutValidator();
+              CheckoutService checkoutService = new CheckoutService(shippingService, checkoutValidator);
 
               Customer customer = new Customer("Jane Doe", 500.0);
 

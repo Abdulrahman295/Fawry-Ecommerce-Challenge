@@ -5,5 +5,5 @@ import java.util.List;
 
 public interface ShippingService {
     double calculateFees(List<Shippable> shippableItems);
-    void processShipping(List<Shippable> shippableItems);
+    void commitShipping(List<Shippable> shippableItems);
 }

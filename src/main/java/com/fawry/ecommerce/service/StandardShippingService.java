@@ -20,14 +20,13 @@ public class StandardShippingService implements ShippingService {
     }
 
     @Override
-    public void processShipping(List<Shippable> shippableItems) {
+    public void commitShipping(List<Shippable> shippableItems) {
         if (!isShipmentRequired(shippableItems)) {
             System.out.println("\nNo items to ship.");
             return;
         }
 
         printShipmentNotice(shippableItems);
-        System.out.println("\nShipment submitted successfully!");
     }
 
     private void printShipmentNotice(List<Shippable> shippableItems) {
