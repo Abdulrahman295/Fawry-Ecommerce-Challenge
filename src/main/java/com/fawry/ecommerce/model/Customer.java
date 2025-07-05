@@ -1,7 +1,7 @@
 package main.java.com.fawry.ecommerce.model;
 
 import main.java.com.fawry.ecommerce.model.cart.ShoppingCart;
-import main.java.com.fawry.ecommerce.model.product.IProduct;
+import main.java.com.fawry.ecommerce.model.product.Product;
 
 public class Customer {
     private final String name;
@@ -26,11 +26,11 @@ public class Customer {
         return shoppingCart;
     }
 
-    public void addToCart(IProduct product, int quantity) {
+    public void addToCart(Product product, int quantity) {
         shoppingCart.addItem(product, quantity);
     }
 
-    public void removeFromCart(IProduct product) {
+    public void removeFromCart(Product product) {
         shoppingCart.removeItem(product);
     }
 

@@ -1,6 +1,6 @@
 package main.java.com.fawry.ecommerce.model.cart;
 
-import main.java.com.fawry.ecommerce.model.product.IProduct;
+import main.java.com.fawry.ecommerce.model.product.Product;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +12,7 @@ public class ShoppingCart {
         this.items = new ArrayList<>();
     }
 
-    public void addItem(IProduct product, int quantity) {
+    public void addItem(Product product, int quantity) {
         if (product == null) {
             throw new IllegalArgumentException("Cannot add null product to cart");
         }
@@ -40,7 +40,7 @@ public class ShoppingCart {
         items.add(newItem);
     }
 
-    public void removeItem(IProduct product) {
+    public void removeItem(Product product) {
         if(product == null) {
             throw new IllegalArgumentException("Cannot remove null product from cart");
         }

@@ -1,12 +1,12 @@
 package main.java.com.fawry.ecommerce.decorator;
 
 import main.java.com.fawry.ecommerce.enums.ProductType;
-import main.java.com.fawry.ecommerce.model.product.IProduct;
+import main.java.com.fawry.ecommerce.model.product.Product;
 
-public abstract class ProductDecorator implements IProduct {
-    protected IProduct product;
+public abstract class ProductDecorator implements Product {
+    protected Product product;
 
-    public ProductDecorator(IProduct product) {
+    public ProductDecorator(Product product) {
         this.product = product;
     }
 

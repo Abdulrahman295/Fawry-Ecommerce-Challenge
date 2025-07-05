@@ -2,9 +2,7 @@ package main.java.com.fawry.ecommerce.model.product;
 
 import main.java.com.fawry.ecommerce.enums.ProductType;
 
-import static java.util.Objects.isNull;
-
-public class BaseProduct implements IProduct {
+public class BaseProduct implements Product {
     private final String name;
     private final double price;
     private final ProductType type;

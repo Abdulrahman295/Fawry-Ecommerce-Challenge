@@ -1,17 +1,17 @@
 package main.java.com.fawry.ecommerce.model.cart;
 
-import main.java.com.fawry.ecommerce.model.product.IProduct;
+import main.java.com.fawry.ecommerce.model.product.Product;
 
 public class CartItem {
-    private final IProduct product;
+    private final Product product;
     private int quantity;
 
-    public CartItem(IProduct product, int quantity) {
+    public CartItem(Product product, int quantity) {
         this.product = product;
         this.quantity = quantity;
     }
 
-    public IProduct getProduct() {
+    public Product getProduct() {
         return product;
     }
 
