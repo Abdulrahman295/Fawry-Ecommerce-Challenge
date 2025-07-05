@@ -1,14 +1,17 @@
 package main.java.com.fawry.ecommerce.service;
 
+import main.java.com.fawry.ecommerce.component.ShippingComponent;
 import main.java.com.fawry.ecommerce.model.Customer;
 import main.java.com.fawry.ecommerce.model.cart.CartItem;
 import main.java.com.fawry.ecommerce.model.cart.ShoppingCart;
 import main.java.com.fawry.ecommerce.model.product.Expirable;
 import main.java.com.fawry.ecommerce.model.product.Product;
 import main.java.com.fawry.ecommerce.model.product.Shippable;
+import main.java.com.fawry.ecommerce.component.ExpirationComponent;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class CheckoutService {
@@ -54,8 +57,9 @@ public class CheckoutService {
             }
 
             // Check expiration
-            if(product instanceof Expirable && ((Expirable) product).isExpired()) {
-                throw new IllegalArgumentException("Product " + product.getName() + " is expired and cannot be purchased.");
+            Optional<ExpirationComponent> expirationOptional = product.getComponent(ExpirationComponent.class);
+            if (expirationOptional.isPresent() && expirationOptional.get().isExpired()) {
+                throw new IllegalArgumentException("Product is expired: " + product.getName());
             }
         });
     }
@@ -79,8 +83,12 @@ public class CheckoutService {
 
     private List<Shippable> getShippableItems(ShoppingCart shoppingCart) {
         return shoppingCart.getItems().stream()
-                .filter(item -> item.getProduct() instanceof Shippable)
-                .flatMap(item -> Collections.nCopies(item.getQuantity(), (Shippable) item.getProduct()).stream())
+                .filter(item -> item.getProduct().getComponent(ShippingComponent.class).isPresent())
+                .flatMap(item -> {
+                    Shippable shippableComponent = item.getProduct().getComponent(ShippingComponent.class).get();
+                    int quantity = item.getQuantity();
+                    return Collections.nCopies(quantity, shippableComponent).stream();
+                })
                 .collect(Collectors.toList());
     }
 
